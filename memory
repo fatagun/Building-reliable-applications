@@ -1,0 +1,40 @@
+Most common unmanaged resources are network connections, database connections, working with OS resources like files, windows etc. 
+
+Even though garbage collector tracks unmanaged resources
+
+Implement dispose pattern to enable deterministic release of unmanaged resources. 
+
+Override Finalize method. Finalization enables non-deterministic of unmanaged resources when IDisposable pattern fails. 
+
+IDisposable pattern is deterministic way to help clean up resources, when IDisposable fails, Finalize method can be used to non-deterministically clean up resources. 
+
+Gc.SurpressFinalize : This is called from Dispose method to prevent finalizer from executing. 
+
+Garbage Collection:
+Each time you create a new object, the common language runtime allocates memory for the object from the managed heap. As long as adress space is available in the managed heap, the runtime continues to allocate space for the new objects. 
+
+CLR garbage collector serves as an automatic memory manager. 
+- Help you manage memory
+- Allocates objects on the managed heap efficiently. 
+- Reclaims objects that are no long being used.  
+- Provides memory safety
+
+
+Fundamentals of memory:
+Each process has its own virtual address space. All processes share the same physical memory and share the page file if there is one. 
+
+- a 32 bit machine has 2 GB user mode virtual address space. 
+
+- You only work with virtual address space and never manipulate physical memory directly. 
+
+Virtual memory can be in 3 states:
+Free: The block of memory has no references and available for allocation. 
+
+Reserved: The block of memory is available for use and can not be used for other processes. However, you cannot store data to this memory block until it is committed. 
+
+Commited: THe block of memory is assigned to physical storage. 
+
+- Virtual address space can get fragmented. This means in every garbage collection, there are holes or free blocks in the address space. 
+
+---------------------------------------------------------------------------------------------
+
