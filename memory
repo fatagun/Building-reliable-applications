@@ -38,3 +38,29 @@ Commited: THe block of memory is assigned to physical storage.
 
 ---------------------------------------------------------------------------------------------
 
+Mark and sweep garbage collector. 
+Mark : finding live objects
+Sweep : reclaim dead objects.
+Compact : Put live objects together. 
+
+Workstation GC is used for client Apps. WPF apps, console apps etc.
+There is a single thread that does Garbage Collection. 
+Concurrent and none Concurrent
+CLR creates a special thread for GC. Schedules threads for cleanup. 
+Concurrent - GC thread runs concurrently with application threads and occasionaly causes very short suspensions and stops other threads.
+Non-Concurrent - There is no special GC thread. Application threads talks to GC. This is a bad idea. There might be long suspensions and pauses. 
+
+Workstation GC doesn't use all CPU cores.
+
+Garbage Collection - Pros and Limits 
+https://social.msdn.microsoft.com/Forums/en-US/286d8c7f-87ca-46b9-9608-2b559d7dc79f/garbage-collection-pros-and-limits?forum=csharpgeneral
+
+
+On the server GC. CLR creates a GC thread per logical core. When GC is needed, these threads awakens all together and cleans up resources. 
+
+If you have 4 physical CPU with hyper threading enabled, you app will create 8 GC threads. 
+
+GC can be parallelized quite well. Server GC is way faster. 
+
+Each CPU allocates its memory, thus improves cache localitly. 
+
