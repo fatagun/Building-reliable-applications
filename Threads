@@ -68,3 +68,12 @@ Once device finished processing, it sends back IRP and byte array back to IOCP (
 Async functions are state machine objects. 
 
 
+Await keyword captures thread current state and data. 
+await keyword uses synchronization context so that correct application model is used. 
+
+
+Whenever you use async/await always use ConfigureAwait(false) 
+
+ConfigureAwait(false) ignores SynchronizationContext, because some tasks may complete synchronously. 
+
+When you are building framework functions, always use ConfigureAwait(false), independent of application model, asp.net, wcf, wpf etc.
