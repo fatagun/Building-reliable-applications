@@ -36,6 +36,32 @@ Commited: THe block of memory is assigned to physical storage.
 
 - Virtual address space can get fragmented. This means in every garbage collection, there are holes or free blocks in the address space. 
 
+
+Since objects in generation 0 and 1 are short lived objects, these generations are also known as ephemeral generations. Ephemeral generations are created on ephemeral segments of memory. The old ephemeral segments becomes the new generation 2 segment. 
+
+Using unmanaged resources:
+If your managed objects uses unmanaged object by using you will have to explicitly free the resources. 
+
+You need to use finalizers to cleanup unmanaged resources. When there is a finalizable object discovered to be dead, its finalizer is put in a finalizer queue. When the finalizer method is executing it needs to place on to f-reachable-queue. 
+
+There are two kind of heaps. Small object heap and large object heap. 
+Large object heap is used for managed objects greater than 85K. 
+
+Large object heap and small object heap stores managed objects on different segments of the memory. 
+Whenever there is memory pressure, GC tries to free some space, runs garbage collection. If the result is not sufficient, VirtualAlloc is called to reserve more memory. 
+
+same garbage collection algorithms apply to LOH. However there is no compaction since moving large objects around are intensive. However, it is possible to override this configuration. 
+
+
+In general GC occurs when on of the following occurs:
+Allocation exceeds the generation 0 and large object threshold. 
+When System is low in memory.
+When GC.Collect is called. 
+
+LOH causes gen 2 garbage collection. 
+
+Very large objects on LOH are usually arrays.  
+
 ---------------------------------------------------------------------------------------------
 
 Mark and sweep garbage collector. 
@@ -64,31 +90,22 @@ GC can be parallelized quite well. Server GC is way faster.
 
 Each CPU allocates its memory, thus improves cache localitly. 
 
-When does Garbage Collection occurs?
-- When system has low physical memory. Either OS or host notifies low memory.
-- There is a threshold for running applications which is adjusted as application runs. When this threshold is surpassed, GC kicks in. 
-- When GC.Collect is invoked. 
+Full garbage Collection occurs when:
+Memory assigned to generation 2 passes the threshold. 
+Large object heap grows. 
+Generation 1 garbage collection notifies.
 
-The managed heap
-CLR allocates segment of memory from Operating system to store and manage objects, this area is called managed heap. 
+Generational Garbage Collection
+Full garbage collection is expensive and inefficient. 
+Heap is divided in to regions and performs small collections often. 
+Modern server apps cant live with frequent full GCs.
+Frequently-touched regions should have many dead objects. 
 
-There is a managed heap per each managed process. To reserve memory, Garbage Collector calls VirtualAlloc function and reserves a segment of memory at a time for managed applications. Garbage Collector also reserve and release segments as needed. 
+*******
+if F-Reachable queue fills up faster than finalizer thread to cope with then you have a memory leak. 
 
-** fewer objects allocated on the heap, less work garbage collector has to do. 
 
-When GC collection is triggered, memory occupied by dead objects is reclaimed. 
-Mark, sweep and compact is used in this process. This phase makes heap smaller and helps allocated objects to stay together to preserve locality. 
+WeakReferences:
+WeakReferences are reference types that can be collected by GC under low memory situation even if they are in use. 
 
-Frequency and duration of GC depends on number of allocations and the amount of survived objects in managed heap. 
-
-There is LOH, large object heap and small object heap. LOH contains very large objects which are bigger than 85K.
-
-The heap is diveded into generations to handle long lived and short lived objects. Garbage Collection most of the time focuses on short lived objects that occupies small parts of the heap. 
-
-Generation 0: Youngest generation, contains very short lived, transient objects. New objects by default  created on this generation, unless they are greater than 85K.
-
-Generation 1: Short lived objects that survives a garbage collection moves on the generation 1. This generation is a buffer between generations. 
-
-Generation 2: This generation contains long lived objects. Objects that survive multiple garbage collections. 
-
-Garbage Collector is responsible for cleaning up in that specific generation and younger generations. A generation 2 garbage collection means full garbage collection.  
+Such as cached objects. 
