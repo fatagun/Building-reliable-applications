@@ -64,3 +64,31 @@ GC can be parallelized quite well. Server GC is way faster.
 
 Each CPU allocates its memory, thus improves cache localitly. 
 
+When does Garbage Collection occurs?
+- When system has low physical memory. Either OS or host notifies low memory.
+- There is a threshold for running applications which is adjusted as application runs. When this threshold is surpassed, GC kicks in. 
+- When GC.Collect is invoked. 
+
+The managed heap
+CLR allocates segment of memory from Operating system to store and manage objects, this area is called managed heap. 
+
+There is a managed heap per each managed process. To reserve memory, Garbage Collector calls VirtualAlloc function and reserves a segment of memory at a time for managed applications. Garbage Collector also reserve and release segments as needed. 
+
+** fewer objects allocated on the heap, less work garbage collector has to do. 
+
+When GC collection is triggered, memory occupied by dead objects is reclaimed. 
+Mark, sweep and compact is used in this process. This phase makes heap smaller and helps allocated objects to stay together to preserve locality. 
+
+Frequency and duration of GC depends on number of allocations and the amount of survived objects in managed heap. 
+
+There is LOH, large object heap and small object heap. LOH contains very large objects which are bigger than 85K.
+
+The heap is diveded into generations to handle long lived and short lived objects. Garbage Collection most of the time focuses on short lived objects that occupies small parts of the heap. 
+
+Generation 0: Youngest generation, contains very short lived, transient objects. New objects by default  created on this generation, unless they are greater than 85K.
+
+Generation 1: Short lived objects that survives a garbage collection moves on the generation 1. This generation is a buffer between generations. 
+
+Generation 2: This generation contains long lived objects. Objects that survive multiple garbage collections. 
+
+Garbage Collector is responsible for cleaning up in that specific generation and younger generations. A generation 2 garbage collection means full garbage collection.  
