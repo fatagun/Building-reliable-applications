@@ -60,7 +60,7 @@
 
 					<section>
 						<p>While OS is running, it can execute only one thread at a given time on a logical processor. </p>
-						<p>If you have a computer with 4 physical cores and 8 logical cores, you can only execute 8 threads at a given time.</p>
+						<p>If you have a computer with 4 physical cores and 8 logical cores, you can only execute 8 threads at a given time, if you have hyperthreading enabled.</p>
 					</section>
 
 					<section>
@@ -168,6 +168,188 @@
 						<p>Async programming model: A thread starts a job and while it is awaiting for a response, it starts next job and so forth.</p>
 					</section>
 				</section>
+
+				<section>
+					<section>
+						<h3>Memory Management and Garbage Collection</h3>
+					</section>
+
+					<section>
+						<p>Each process has its own virtual address space and all processes share the same physical memory as well as page file if there is any.</p>
+						<p>You can only work with virtual address space and never manipulate physical memory directly.</p>
+					</section>
+
+					<section>
+						<p>Virtual memory can be in 3 states:</p>
+						<p>Free: The block of memory has no references and available for allocations</p>
+						<p>Reserved: The block of memory is available and can not be used by another process but it has to be committed to be used.</p>
+						<p>Committed: The block of memory is assigned to physical memory and can be used.</p>
+					</section>
+
+					<section>
+						<p>Back in the days, while working with c/c++, it was developers reponsibility to work with memory, allocate and clean memory contents.</p>
+						<p>.net uses managed heap for memory management. Memory management is done via CLR.</p>
+					</section>
+
+					<section>
+						<p>Each time you create a new object, the common language runtime allocates memory for the object from the managed heap. As long as adress space is available in the managed heap, the runtime continues to allocate space for the new objects.</p>
+					</section>
+
+					<section>
+						<p>CLR garbage collector serves as an automatic memory manager. <br/>
+- Help you manage memory <br/>
+- Allocates objects on the managed heap efficiently. <br/>
+- Reclaims objects that are no longer being used.  <br/>
+- Provides memory safety</p>
+					</section>
+
+					<section>
+						<p>
+							Mark and sweep garbage collector. <br />
+							Mark : finding live objects <br />
+							Sweep : reclaim dead objects.<br />
+							Compact : Put live objects together. 
+						</p>
+
+						<p>
+							Virtual address space can get fragmented. This means in every garbage collection, there are holes or free blocks in the address space. 
+						</p>
+					</section>
+
+					<section>
+						<img src="images/loh-figure-1.jpg" />
+					</section>
+
+					<section>
+						<img src="images/loh-figure-2.jpg" />
+					</section>
+
+					<section>
+						<p>Managed heap uses generational garbage collection. <br/>
+						
+						Heap is divided in to regions and performs small collections often. <br/> 
+						Modern server apps cant live with frequent full GCs.
+						Frequently-touched regions should have many dead objects. </p>
+					</section>
+
+					<section>
+						<p>Objects in generation 0 and 1 are short lived objects, these generations are also known as ephemeral generations. Ephemeral generations are created on ephemeral segments of memory. The old ephemeral segments becomes the new generation 2 segment. </p>
+					</section>
+
+					<section>
+						<p>There are two kind of heaps. Small object heap and large object heap. Large object heap is used for managed objects greater than 85K.</p>
+					</section>
+
+					<section>
+						<p>Large object heap and small object heap stores managed objects on different segments of the memory. Whenever there is memory pressure, GC tries to free some space, runs garbage collection. If the result is not sufficient, VirtualAlloc is called to reserve more memory.</p>
+					</section>
+
+					<section>
+						<p>Same garbage collection algorithms apply to LOH. However there is no compaction since moving large objects around are intensive. However, it is possible to override this configuration.</p>
+					</section>
+
+					<section>
+						<p>In general GC occurs when on of the following occurs: Allocation exceeds the generation 0 and large object threshold. When System is low in memory. When GC.Collect is called. </p>
+						<p>LOH causes gen 2 garbage collection. Very large objects on LOH are usually arrays. 
+						</p>
+					</section>
+
+					<section>
+						<p>Full garbage collection is expensive, inefficient and performance killer.</p>
+					</section>
+
+					<section>
+						<p>Unmanaged resource references are also tracked by CLR. If your managed objects usess unmanaged objects you will have to clean after yourself. <br />You can either use Disposable Pattern or finalizers to work with unmanaged resources.</p>
+					</section>
+
+					<section>
+						<p>Most common unmanaged resources are network connections, database connections, files and windows.</p>
+					</section>
+
+					<section>
+						<p><a href="https://docs.microsoft.com/en-us/dotnet/standard/garbage-collection/implementing-dispose" target="new">Disposable pattern</a> is a deterministic way to help clean up resources.</p>
+						<p>When Disposable pattern fails, <a href="http://dotnetmentors.com/c-sharp/implementing-finalize-and-dispose-of-net-framework.aspx" target="foo">finalizers</a> can be used to non-deterministically clean up resources.</p>
+					</section>
+
+					<section>
+						<p>When there is a finalizable object discovered to be dead, it is put in the finalizer queue. When it is being executed, it is put on to the f-reachable-queue.</p>
+
+						<p>When f-reachable-queue fills up faster than it can be processed, you will have memory leak.</p>
+					</section>
+
+					<section>
+						<p>There is workstation and server mode garbage collection. Each has its own trade offs.</p>
+						<p>There is concurrent and non concurrent garbage collection.</p>
+					</section>
+
+					<section>
+						<p>Workstation GC is mostly used for client apps such as WPF, console apps. There is a single thread that does garbage collection.</p>
+						<p>Workstation does not use all CPU cores. Server mode garbage collection utilizes all CPU cores.</p>
+					</section>
+
+					<section>
+						<p>On the server GC. CLR creates a GC thread per logical core. When GC is needed, these threads awakens all together and cleans up resources. One handicap here is context switching.</p>
+					</section>
+
+					<section>
+						<p>Garbage collection can be parallelized quite well. Each CPU allocates its memory, thus improves cache locality.</p>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h3>Recommendations</h3>
+					</section>
+
+					<section>
+						<p>Use of weak references</p>
+					</section>
+
+					<section>
+						<p>Avoid full garbage collection.</p>
+					</section>
+
+					<section>
+						<p>Implement Disposable pattern where possible and try to avoid finalizers.</p>
+					</section>
+
+					<section>
+						<p>Do not block your threads.</p>
+					</section>
+
+					<section>
+						<p>Use async/await for IO bound operations.</p>
+					</section>
+
+					<section>
+						<p>Measure everything.</p>
+					</section>
+
+					<section>
+						<p>Minimize exceptions.</p>
+					</section>
+
+					<section>
+						<p>Reduce allocations. Minimize large object allocations.</p>
+					</section>
+
+					<section>
+						<p>use value types where it makes sense.</p>
+					</section>
+
+					<section>
+						<p>Cache where it makes senses.</p>
+					</section>
+
+					<section>
+						<p>Lazy initialize expensive resources.</p>
+					</section>
+
+					<section>
+						<p>Pool expensive resources.</p>
+					</section>
+				</section>
+
 
 
 			</div>
