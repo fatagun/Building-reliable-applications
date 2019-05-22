@@ -124,7 +124,7 @@
 
 						<p>var result = await file.ReadyAsync();</p>
 
-						<p>This returns a Task that is supposed to complete in the future. Now the thread is not blocked and can do different things. Await keyword allows thread to return immediately.</p>
+						<p>This returns a Task that is supposed to complete in the future. Now the thread is not blocked and can do different things. Await allows thread to return immediately.</p>
 					</section>
 
 					<section>
@@ -136,14 +136,12 @@
 					</section>
 
 					<section>
-						<p>Await keyword captures thread current state and data. await keyword uses synchronization context so that correct application model is used.</p>
+						<p>Await captures thread current state as well as data and uses synchronization context so that correct application model is used.</p>
 					</section>
 
 					<section>
 						<p>Whenever you use async/await always use ConfigureAwait(false)</p>
-					</section>
 
-					<section>
 						<p>ConfigureAwait(false) ignores synchronization context, because some tasks may complete synchronously.</p>
 					</section>
 
