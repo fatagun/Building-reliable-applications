@@ -1,73 +1,27 @@
 Most common unmanaged resources are network connections, database connections, working with OS resources like files, windows etc. 
 
-Even though garbage collector tracks unmanaged resources
-
-Implement dispose pattern to enable deterministic release of unmanaged resources. 
+ 
 
 Override Finalize method. Finalization enables non-deterministic of unmanaged resources when IDisposable pattern fails. 
 
 IDisposable pattern is deterministic way to help clean up resources, when IDisposable fails, Finalize method can be used to non-deterministically clean up resources. 
 
 Gc.SurpressFinalize : This is called from Dispose method to prevent finalizer from executing. 
-
-Garbage Collection:
-Each time you create a new object, the common language runtime allocates memory for the object from the managed heap. As long as adress space is available in the managed heap, the runtime continues to allocate space for the new objects. 
-
-CLR garbage collector serves as an automatic memory manager. 
-- Help you manage memory
-- Allocates objects on the managed heap efficiently. 
-- Reclaims objects that are no long being used.  
-- Provides memory safety
+ 
+ 
 
 
-Fundamentals of memory:
-Each process has its own virtual address space. All processes share the same physical memory and share the page file if there is one. 
-
-- a 32 bit machine has 2 GB user mode virtual address space. 
-
-- You only work with virtual address space and never manipulate physical memory directly. 
-
-Virtual memory can be in 3 states:
-Free: The block of memory has no references and available for allocation. 
-
-Reserved: The block of memory is available for use and can not be used for other processes. However, you cannot store data to this memory block until it is committed. 
-
-Commited: THe block of memory is assigned to physical storage. 
-
-- Virtual address space can get fragmented. This means in every garbage collection, there are holes or free blocks in the address space. 
-
-
-Since objects in generation 0 and 1 are short lived objects, these generations are also known as ephemeral generations. Ephemeral generations are created on ephemeral segments of memory. The old ephemeral segments becomes the new generation 2 segment. 
 
 Using unmanaged resources:
 If your managed objects uses unmanaged object by using you will have to explicitly free the resources. 
 
 You need to use finalizers to cleanup unmanaged resources. When there is a finalizable object discovered to be dead, its finalizer is put in a finalizer queue. When the finalizer method is executing it needs to place on to f-reachable-queue. 
 
-There are two kind of heaps. Small object heap and large object heap. 
-Large object heap is used for managed objects greater than 85K. 
 
-Large object heap and small object heap stores managed objects on different segments of the memory. 
-Whenever there is memory pressure, GC tries to free some space, runs garbage collection. If the result is not sufficient, VirtualAlloc is called to reserve more memory. 
-
-same garbage collection algorithms apply to LOH. However there is no compaction since moving large objects around are intensive. However, it is possible to override this configuration. 
-
-
-In general GC occurs when on of the following occurs:
-Allocation exceeds the generation 0 and large object threshold. 
-When System is low in memory.
-When GC.Collect is called. 
-
-LOH causes gen 2 garbage collection. 
-
-Very large objects on LOH are usually arrays.  
 
 ---------------------------------------------------------------------------------------------
 
-Mark and sweep garbage collector. 
-Mark : finding live objects
-Sweep : reclaim dead objects.
-Compact : Put live objects together. 
+ 
 
 Workstation GC is used for client Apps. WPF apps, console apps etc.
 There is a single thread that does Garbage Collection. 
@@ -84,22 +38,14 @@ https://social.msdn.microsoft.com/Forums/en-US/286d8c7f-87ca-46b9-9608-2b559d7dc
 
 On the server GC. CLR creates a GC thread per logical core. When GC is needed, these threads awakens all together and cleans up resources. 
 
-If you have 4 physical CPU with hyper threading enabled, you app will create 8 GC threads. 
 
 GC can be parallelized quite well. Server GC is way faster. 
 
 Each CPU allocates its memory, thus improves cache localitly. 
 
-Full garbage Collection occurs when:
-Memory assigned to generation 2 passes the threshold. 
-Large object heap grows. 
-Generation 1 garbage collection notifies.
 
-Generational Garbage Collection
-Full garbage collection is expensive and inefficient. 
-Heap is divided in to regions and performs small collections often. 
-Modern server apps cant live with frequent full GCs.
-Frequently-touched regions should have many dead objects. 
+
+
 
 *******
 if F-Reachable queue fills up faster than finalizer thread to cope with then you have a memory leak. 
